@@ -17,3 +17,14 @@ export const TransactionResponseSchema = z.object({
 }).strict();
 
 export type TransactionResponseDTO = z.infer<typeof TransactionResponseSchema>;
+
+export interface TransactionResponseDTO {
+
+export interface TransactionResponseDTO {
+    id: string;
+    type: 'income' | 'expense';
+    amount: number;
+    title: string;
+    category: string;
+    date: string; // Freqüentemente, datas são enviadas como strings ISO para o cliente
+}

@@ -31,8 +31,16 @@ export const CreateTransactionSchema = z.object({
 
     date: z.string()
     .transform((val) => new Date(val)) // Converte para Date
-    .refine((date) => !isNaN(date.getTime()), { message: 'Data inválida.' })
+    .refine((date) => !isNaN(date.getTime()), { message: 'Data inválida.' }),
 
+    date: z.string()
+    .transform((val) => new Date(val))
+    .refine((date) => !isNaN(date.getTime()), { message: 'Data inválida.' })
+    .refine((date) => date.getFullYear() < 2025, { message: 'A data não pode ser a partir de 2025.' }) // Exemplo: Valida o ano
+    .refine((date) => date.getMonth() === 0, { message: 'A data deve ser de Janeiro.' }) // Exemplo: Valida o mês (0-11)
+    .refine((date) => date.getDate() >= 1 && date.getDate() <= 31, { message: 'Dia inválido.' }) // Exemplo: Valida o dia
+    // Ou para garantir que não é uma data futura:
+    .refine((date) => date <= new Date(), { message: 'A data não pode ser no futuro.' })
 });
 
 export type CreateTransactionDTO = z.infer<typeof CreateTransactionSchema>;

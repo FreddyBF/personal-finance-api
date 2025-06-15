@@ -1,16 +1,31 @@
-import { CreateTransactionDTO } from "../dtos/create-transaction.dto";
-import { UpdateTransactionDTO } from "../dtos/update-transaction.dto";
-import { TransactionResponseDTO } from "../dtos/transaction-response.dto";
-import { ITransaction } from "./transaction.model.interface";
+import { ITransactionModel } from "./transaction.model.interface";
+import { TransactionFilters } from "./transaction.filters.interface";
 
 export interface ITransactionRepository {
-    createTransaction(userId: string, data: CreateTransactionDTO): Promise<TransactionResponseDTO>;
-    updateTransaction(
-        userId: string, transactionId: string, data: UpdateTransactionDTO
-    ): Promise<TransactionResponseDTO>;
+
+    getTransactionsByUserId(userId: string): Promise<ITransactionModel[]>;
+
+    create(
+        userId: string, dataTransaction: Omit<ITransactionModel, 'userId' | 'createdAt' | 'updatedAt'>
+    ): Promise<ITransactionModel>;
+    update(
+        userId: string,
+        transactionId: string,
+        dataToUpdate: Partial<Omit<ITransactionModel, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+    ): Promise<ITransactionModel | null>;
+
+    replace(
+            userId: string,
+            transactionId: string,
+            // Recebe um objeto COMPLETO. Todos os campos, exceto _id, userId, timestamps, são esperados.
+            // Se um campo obrigatório não for fornecido, o Mongoose validará e lançará um erro.
+            dataToReplace: Omit<ITransactionModel, '_id' | 'userId' | 'createdAt' | 'updatedAt'>
+        ): Promise<ITransactionModel | null>;
+
     
-    deleteTransaction(userId: string, transactionId: string): Promise<void>;
-    
-    getTransactions(userId: string, filters: any): Promise<TransactionResponseDTO[]>;
-    getSummary(userId: string):Promise<void>;
+    delete(userId: string, transactionId: string): Promise<ITransactionModel | null>;
+
+    getTransactions(userId: string, filters: TransactionFilters ): Promise<ITransactionModel[]>;
+
+    getSummary(userId: string): Promise<{ totalIncome: number; totalExpense: number; balance: number }>;
 }

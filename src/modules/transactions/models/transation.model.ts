@@ -1,9 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { ITransaction } from "../interfaces/transaction.model.interface";
+import { ITransactionModel } from "../interfaces/transaction.model.interface";
 import { TransactionCategory } from "../types/transation.category.type";
 
 // Esquema Mongoose para a transação
-const TransactionSchema = new Schema<ITransaction>(
+export const TransactionSchema = new Schema<ITransactionModel>(
     {
         userId: {
             type: Schema.Types.ObjectId,
@@ -29,7 +29,7 @@ const TransactionSchema = new Schema<ITransaction>(
             type: String, 
             enum: Object.values(TransactionCategory), 
             required: true ,
-        }
+        },
 
         date: {
             type: Date,
@@ -42,4 +42,4 @@ const TransactionSchema = new Schema<ITransaction>(
 );
 
 // Criação do modelo Mongoose
-export const Transaction = mongoose.model<ITransaction>("Transaction", TransactionSchema);
+export const TransactionModel = mongoose.model<ITransactionModel>("Transaction", TransactionSchema);

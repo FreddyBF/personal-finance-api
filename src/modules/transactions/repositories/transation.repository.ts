@@ -4,6 +4,7 @@ import { DatabaseException } from "../../../shared/exceptions/database.exception
 import { TransactionFilters } from "../interfaces/transaction.filters.interface";
 import { ITransactionModel } from "../interfaces/transaction.model.interface";
 import mongoose from "mongoose";
+import { ITransactionAggregationResult } from "../interfaces/transcation.agregate-result.interface";
 
 export class TransactionRepository implements ITransactionRepository {
 
@@ -117,7 +118,7 @@ export class TransactionRepository implements ITransactionRepository {
 
     
 
-    async getTransactions(userId: string, filters: TransactionFilters): Promise<ITransactionModel[]> {
+    async getTransactions(userId: string, filters?: TransactionFilters): Promise<ITransactionModel[]> {
         try {
             const objectIdUserId = new mongoose.Types.ObjectId(userId);
 
@@ -142,7 +143,7 @@ export class TransactionRepository implements ITransactionRepository {
      * @returns Promise<{ totalIncome: number; totalExpense: number; balance: number; }> Um promessa que resolve para um objeto de resumo.
      * @throws DatabaseException Se ocorrer um erro no banco de dados.
      */
-    async getSummary(userId: string): Promise<{ totalIncome: number; totalExpense: number; balance: number }> {
+    async getSummary(userId: string): Promise<ITransactionAggregationResult> {
         try {
             const objectIdUserId = new mongoose.Types.ObjectId(userId);
 

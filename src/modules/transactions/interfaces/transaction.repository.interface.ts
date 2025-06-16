@@ -1,5 +1,6 @@
 import { ITransactionModel } from "./transaction.model.interface";
 import { TransactionFilters } from "./transaction.filters.interface";
+import { ITransactionAggregationResult } from "./transcation.agregate-result.interface";
 
 export interface ITransactionRepository {
 
@@ -8,6 +9,7 @@ export interface ITransactionRepository {
     create(
         userId: string, dataTransaction: Omit<ITransactionModel, 'userId' | 'createdAt' | 'updatedAt'>
     ): Promise<ITransactionModel>;
+
     update(
         userId: string,
         transactionId: string,
@@ -25,7 +27,7 @@ export interface ITransactionRepository {
     
     delete(userId: string, transactionId: string): Promise<ITransactionModel | null>;
 
-    getTransactions(userId: string, filters: TransactionFilters ): Promise<ITransactionModel[]>;
+    getTransactions(userId: string, filters?: TransactionFilters): Promise<ITransactionModel[]>;
 
-    getSummary(userId: string): Promise<{ totalIncome: number; totalExpense: number; balance: number }>;
+    getSummary(userId: string): Promise<ITransactionAggregationResult>;
 }

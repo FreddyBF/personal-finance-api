@@ -3,6 +3,7 @@ import { TransactionSummaryResponseDTO } from "../dtos/transaction-response-suma
 import { TransactionResponseDTO } from "../dtos/transaction-response.dto";
 import { UpdateTransactionDTO } from "../dtos/update-transaction.dto";
 import { TransactionFilters } from "./transaction.filters.interface";
+import { ITransactionBase } from "./transaction.model.interface";
 
 export interface ITransactionService  {
 
@@ -18,7 +19,7 @@ export interface ITransactionService  {
         userId: string, transactionId: string, transaction: UpdateTransactionDTO
     ): Promise<TransactionResponseDTO>;
 
-    replaceOne(userId: string, transaction: CreateTransactionDTO): Promise<TransactionResponseDTO>;
+    replaceOne(userId: string, idTransaction: string, transaction: CreateTransactionDTO): Promise<TransactionResponseDTO>;
 
     deleteOne(userId: string, transactionId: string): Promise<TransactionResponseDTO>;
 

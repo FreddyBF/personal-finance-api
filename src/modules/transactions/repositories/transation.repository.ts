@@ -1,5 +1,6 @@
 import { ITransactionRepository } from "../interfaces/transaction.repository.interface";
 import { TransactionModel } from "../models/transation.model";
+import { ITransactionBase } from "../interfaces/transaction.model.interface";
 import { DatabaseException } from "../../../shared/exceptions/database.exception";
 import { TransactionFilters } from "../interfaces/transaction.filters.interface";
 import { ITransactionModel } from "../interfaces/transaction.model.interface";
@@ -28,7 +29,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     async create(
-        userId: string, dataTransaction: Omit<ITransactionModel, 'userId' | 'createdAt' | 'updatedAt'>
+        userId: string, dataTransaction: ITransactionBase
     ): Promise<ITransactionModel> {
         try {
             const user_id_obj = new mongoose.Types.ObjectId(userId);
@@ -46,7 +47,7 @@ export class TransactionRepository implements ITransactionRepository {
     async update(
         userId: string,
         transactionId: string,
-        dataToUpdate: Partial<Omit<ITransactionModel, '_id' | 'userId' | 'createdAt' | 'updatedAt'>>
+        dataToUpdate: Partial<ITransactionBase>
     ): Promise<ITransactionModel | null> {
         try {
             const objectIdTransactionId = new mongoose.Types.ObjectId(transactionId);
@@ -66,9 +67,7 @@ export class TransactionRepository implements ITransactionRepository {
     async replace(
         userId: string,
         transactionId: string,
-        // Recebe um objeto COMPLETO. Todos os campos, exceto _id, userId, timestamps, são esperados.
-        // Se um campo obrigatório não for fornecido, o Mongoose validará e lançará um erro.
-        dataToReplace: Omit<ITransactionModel, '_id' | 'userId' | 'createdAt' | 'updatedAt'>
+        dataToReplace: ITransactionBase
     ): Promise<ITransactionModel | null> {
         try {
             const objectIdTransactionId = new mongoose.Types.ObjectId(transactionId);
@@ -114,10 +113,9 @@ export class TransactionRepository implements ITransactionRepository {
             } catch (error) {
                 throw new DatabaseException('Failed to delete transaction due to a database issue.');
             }
-        }
+    }
 
     
-
     async getTransactions(userId: string, filters?: TransactionFilters): Promise<ITransactionModel[]> {
         try {
             const objectIdUserId = new mongoose.Types.ObjectId(userId);
@@ -143,6 +141,7 @@ export class TransactionRepository implements ITransactionRepository {
      * @returns Promise<{ totalIncome: number; totalExpense: number; balance: number; }> Um promessa que resolve para um objeto de resumo.
      * @throws DatabaseException Se ocorrer um erro no banco de dados.
      */
+    
     async getSummary(userId: string): Promise<ITransactionAggregationResult> {
         try {
             const objectIdUserId = new mongoose.Types.ObjectId(userId);

@@ -1,12 +1,16 @@
-import { IUser } from '../models/user.model';
-import { CreateUserDTO } from '../dtos/create-user.dto';
+import { IUserBase } from './user.model.interface';
+import { IUserModel } from './user.model.interface';
 
 export interface IUserRepository {
-    findById(id: string): Promise<IUser | null>;
-    create(user: CreateUserDTO): Promise<IUser>;
-    update(id: string, user: CreateUserDTO): Promise<IUser | null>;
+
+    findById(id: string): Promise<IUserModel | null>;
+
+    create(user: IUserBase): Promise<IUserModel>;
+
+    update(id: string, user: IUserBase): Promise<IUserModel | null>;
+
     delete(id: string): Promise<boolean>;
-    findByEmail(email: string): Promise<IUser | null>;
-    findAll(): Promise<IUser[]>;
+
+    findByEmail(email: string): Promise<IUserModel | null>;
 
 }

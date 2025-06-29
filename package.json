@@ -1,5 +1,5 @@
 {
-  "name": "api_2",
+  "name": "management-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,11 @@
     "start:dev": "nodemon --exec ts-node src/server.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alfredo Baptista",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -22,13 +23,15 @@
     "zod": "^3.25.51"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
+    "@types/express": "^5.0.3",
     "@types/helmet": "^0.0.48",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^22.15.29",
+    "@types/node": "^24.0.6",
+    "@types/typescript": "^0.4.29",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }

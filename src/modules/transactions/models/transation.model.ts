@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ITransactionModel } from "../interfaces/transaction.model.interface";
-import { TransactionCategory } from "../types/transation.category.type";
+import { TRANSACTION_CATEGORIES_LIST } from "../types/transation.category.type";
 
 // Esquema Mongoose para a transação
 export const TransactionSchema = new Schema<ITransactionModel>(
@@ -10,25 +10,28 @@ export const TransactionSchema = new Schema<ITransactionModel>(
             ref: "User",
             required: true, // Garante que cada transação tenha um utilizador associado
         },
+
         type: {
             type: String,
             enum: ["income", "expense"], // Define os valores aceitos
             required: true,
         },
+
         amount: {
             type: Number,
             required: true,
             min: 0, // Garante que seja positivo
         },
+
         title: {
             type: String,
             trim: true, // Remove espaços extras
         },
 
-        category: { 
-            type: String, 
-            enum: Object.values(TransactionCategory), 
-            required: true ,
+        category: {
+            type: String,
+            enum: TRANSACTION_CATEGORIES_LIST,
+            required: true
         },
 
         date: {

@@ -1,38 +1,45 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-dotenv.config();
-import { Request, Response, NextFunction } from 'express';
 import { UnauthorizedError } from '../shared/errors/unauthorized.error';
 import { ForbiddenError } from '../shared/errors/forbidden.error';
-import { JwtPayload } from 'jsonwebtoken';
 import { ApiError } from '../shared/errors/api.error';
 
-interface CustomRequest extends Request {
-    user?: string | JwtPayload;
-}
+dotenv.config();
 
-export const authMiddleware = (req: CustomRequest, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    try {
-        if (!token) {
-            const err = new UnauthorizedError('No token provided');
-            return res.status(err.statusCode).json({ message: err.message });
-        }
-        jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
-            if (err) {
-                const err = new ForbiddenError();
-               return res.status(err.statusCode).json({ message: err.message });
-            }
-            req.user = decoded; // Attach user info to request object
-            next();
-        });
-    } catch (error) {
-        if (error instanceof ApiError) {
-            return res.status(error.statusCode).json({ 
-                status: 'error',
-                message: error.message
-             });
-        }
+export const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')[1];
+
+    if (!token) {
+      throw new UnauthorizedError('Token de autenticação não fornecido.');
     }
-}
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+
+    if (typeof decoded !== 'object' || !('sub' in decoded)) {
+      throw new ForbiddenError('Token inválido ou malformado.');
+    }
+
+    req.userId = decoded.sub as string;
+
+    return next();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      const err = new ForbiddenError('Token inválido ou expirado.');
+      res.status(err.statusCode).json({ status: 'error', message: err.message });
+      return;
+    }
+
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({ status: 'error', message: error.message });
+      return;
+    }
+    res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
+  }
+};

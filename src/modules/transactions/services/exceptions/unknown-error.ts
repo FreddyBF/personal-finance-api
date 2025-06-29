@@ -16,15 +16,12 @@ export class UnknownError extends Error {
     constructor(message: string = "Ocorreu um erro inesperado.", originalError?: Error) {
         // Chama o construtor da classe base (Error)
         super(message);
-
         // Define o nome da exceção
         this.name = 'UnknownError';
-
         // Captura o stack trace para melhor depuração
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, UnknownError);
         }
-
         // Armazena o erro original
         this.originalError = originalError;
     }

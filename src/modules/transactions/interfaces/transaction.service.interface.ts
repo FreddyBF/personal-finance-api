@@ -11,6 +11,8 @@ export interface ITransactionService  {
 
     getAll(userId: string): Promise<TransactionResponseDTO[]>;
 
+    getTransaction(userId: string, transactionId: string): Promise<TransactionResponseDTO>;
+
     getAllByFilters(
         userId: string, filters?:TransactionFilters
     ): Promise<TransactionResponseDTO[]>;

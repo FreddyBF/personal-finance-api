@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRANSACTION_CATEGORIES_LIST } from '../types/transation.category.type';
 
 export const CreateTransactionSchema = z.object({
     type: z.enum(['income', 'expense'], {
@@ -13,19 +14,9 @@ export const CreateTransactionSchema = z.object({
         .min(5, { message: 'O título deve ter no mínimo 5 caracteres.' })
         .max(40, { message: 'O título deve ter no máximo 40 caracteres.' }),
 
-    category: z.enum([
-        "Alimentação",
-        "Transporte",
-        "Lazer",
-        "Saúde",
-        "Educação",
-        "Investimentos",
-        "Moradia",
-        "Salário",
-        "Outros"
-    ], {
-        errorMap: () => ({ 
-            message: 'A categoria é obrigatória e deve ser uma das opções disponíveis.' 
+    category: z.enum(TRANSACTION_CATEGORIES_LIST, { // Use a constante aqui
+        errorMap: () => ({
+            message: 'A categoria é obrigatória e deve ser uma das opções disponíveis.'
         })
     }),
 

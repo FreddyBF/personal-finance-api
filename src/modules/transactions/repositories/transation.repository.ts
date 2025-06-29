@@ -5,9 +5,28 @@ import { DatabaseException } from "../../../shared/exceptions/database.exception
 import { TransactionFilters } from "../interfaces/transaction.filters.interface";
 import { ITransactionModel } from "../interfaces/transaction.model.interface";
 import mongoose from "mongoose";
+import { Types } from "mongoose";
 import { ITransactionAggregationResult } from "../interfaces/transcation.agregate-result.interface";
 
 export class TransactionRepository implements ITransactionRepository {
+    
+    async create(
+        userId: string, dataTransaction: ITransactionBase
+    ): Promise<ITransactionModel> {
+        try {
+            const user_id = new Types.ObjectId(userId);
+
+            const saved: ITransactionModel = await TransactionModel.create(
+                { ...dataTransaction, userId: user_id }
+            );
+            return saved;
+        } catch (error) {
+            throw new DatabaseException(
+                `Falha ao salvar transação no banco de dados.`, 
+                error as Error
+            );
+        }
+    }
 
     /**
      * Retorna uma lista de todas as transações para um determinado usuário.
@@ -15,29 +34,37 @@ export class TransactionRepository implements ITransactionRepository {
      * @returns Promise<ITransactionModel[]> Uma promessa que resolve para um array de documentos de transação.
      * Retorna um array vazio se nenhuma transação for encontrada para o userId.
      */
-    async getTransactionsByUserId(userId: string): Promise<ITransactionModel[]> {
+    async getAll(userId: string): Promise<ITransactionModel[]> {
         try {
             const objectIdUserId = new mongoose.Types.ObjectId(userId);
-
             // O .lean() otimiza a busca, retornando objetos JavaScript puros em vez de documentos Mongoose completos.
             // Isso pode melhorar a performance para operações de leitura.
-            const transactions: ITransactionModel[] = await TransactionModel.find({ userId: objectIdUserId }).lean();
+            const transactions: ITransactionModel[] = await TransactionModel.find(
+                { userId: objectIdUserId }
+            ).lean();
             return transactions;
         } catch (error) {
-            throw new DatabaseException("Failed to retrieve transactions due to a database issue.");
+            throw new DatabaseException(
+                "Failed to retrieve transactions due to a database issue.", 
+                error as Error
+            );
         }
     }
 
-    async create(
-        userId: string, dataTransaction: ITransactionBase
-    ): Promise<ITransactionModel> {
-        try {
-            const user_id_obj = new mongoose.Types.ObjectId(userId);
 
-            const saved: ITransactionModel = await TransactionModel.create({ ...dataTransaction, userId: user_id_obj });
-            return saved;
+    async getById(userId: string, transactionId: string): Promise<ITransactionModel | null> {
+        try {
+            const objectIdUserId = new Types.ObjectId(userId);
+            const transaction_id = new Types.ObjectId(transactionId);
+            const transaction: ITransactionModel | null = await TransactionModel.findOne(
+                { userId: objectIdUserId, transaction_id }
+            ).lean();
+            return transaction;
         } catch (error) {
-            throw new DatabaseException();
+            throw new DatabaseException(
+                "Failed to retrieve transactions due to a database issue.", 
+                error as Error
+            );
         }
     }
 
@@ -50,8 +77,8 @@ export class TransactionRepository implements ITransactionRepository {
         dataToUpdate: Partial<ITransactionBase>
     ): Promise<ITransactionModel | null> {
         try {
-            const objectIdTransactionId = new mongoose.Types.ObjectId(transactionId);
-            const objectIdUserId = new mongoose.Types.ObjectId(userId);
+            const objectIdTransactionId = new Types.ObjectId(transactionId);
+            const objectIdUserId = new Types.ObjectId(userId);
 
             const updatedDocument: ITransactionModel | null = await TransactionModel.findOneAndUpdate(
                 { _id: objectIdTransactionId, userId: objectIdUserId },
@@ -60,7 +87,10 @@ export class TransactionRepository implements ITransactionRepository {
             );
             return updatedDocument;
         } catch (error) {
-            throw new DatabaseException("Error updating transaction in database.");
+            throw new DatabaseException(
+                "Error updating transaction in database.", 
+                error as Error
+            );
         }
     }
 
@@ -70,8 +100,8 @@ export class TransactionRepository implements ITransactionRepository {
         dataToReplace: ITransactionBase
     ): Promise<ITransactionModel | null> {
         try {
-            const objectIdTransactionId = new mongoose.Types.ObjectId(transactionId);
-            const objectIdUserId = new mongoose.Types.ObjectId(userId);
+            const objectIdTransactionId = new Types.ObjectId(transactionId);
+            const objectIdUserId = new Types.ObjectId(userId);
 
             // Atenção: replaceOne substitui o documento INTEIRO.
             // O _id e userId do documento NO BANCO DE DADOS são mantidos pelo filtro.
@@ -85,40 +115,44 @@ export class TransactionRepository implements ITransactionRepository {
 
             return replacedDocument;
         } catch (error) {
-            throw new DatabaseException("Error replacing transaction in database.");
+            throw new DatabaseException(
+                "Error replacing transaction in database.",
+                error as Error
+            );
         }
     }
 
-
     /**
-        * Deleta uma transação específica de um usuário.
-         * @param userId O ID do usuário proprietário da transação.
+    * Deleta uma transação específica de um usuário.
+    * @param userId O ID do usuário proprietário da transação.
          * @param transactionId O ID da transação a ser deletada.
          * @returns Promise<ITransactionModel | null> Uma promessa que resolve para o documento deletado, ou null se não for encontrado.
          * @throws DatabaseException Se ocorrer um erro no banco de dados.
          */
     async delete(userId: string, transactionId: string): Promise<ITransactionModel | null> {
-            try {
-                const objectIdUserId = new mongoose.Types.ObjectId(userId);
-                const objectIdTransactionId = new mongoose.Types.ObjectId(transactionId);
-    
-                // findOneAndDelete encontra um documento pelo filtro e o remove.
-                // Retorna o documento removido, ou null se não encontrar.
-                const deletedDocument: ITransactionModel | null = await TransactionModel.findOneAndDelete({
-                    _id: objectIdTransactionId,
-                    userId: objectIdUserId,
-                }).lean(); // Usar .lean() também para operações de escrita que retornam o documento
-    
-                return deletedDocument; // Retorna o documento que foi deletado, ou null
-            } catch (error) {
-                throw new DatabaseException('Failed to delete transaction due to a database issue.');
-            }
-    }
-
-    
-    async getTransactions(userId: string, filters?: TransactionFilters): Promise<ITransactionModel[]> {
         try {
-            const objectIdUserId = new mongoose.Types.ObjectId(userId);
+            const objectIdUserId = new Types.ObjectId(userId);
+            const objectIdTransactionId = new Types.ObjectId(transactionId);
+    
+            // findOneAndDelete encontra um documento pelo filtro e o remove.
+            // Retorna o documento removido, ou null se não encontrar.
+            const deletedDocument: ITransactionModel | null = await TransactionModel.findOneAndDelete(
+                { _id: objectIdTransactionId, userId: objectIdUserId}
+            ).lean(); // Usar .lean() também para operações de escrita que retornam o documento
+    
+            return deletedDocument; // Retorna o documento que foi deletado, ou null
+        } catch (error) {
+            throw new DatabaseException(
+                'Failed to delete transaction due to a database issue.',
+                error as Error
+            );
+        }
+    }
+    
+    
+    async getByFilter(userId: string, filters?: TransactionFilters): Promise<ITransactionModel[]> {
+        try {
+            const objectIdUserId = new Types.ObjectId(userId);
 
             // Constrói o objeto de consulta com o userId obrigatório e os filtros opcionais.
             const query = {
@@ -130,10 +164,9 @@ export class TransactionRepository implements ITransactionRepository {
 
             return transactions; // Retorna um array de documentos ou um array vazio.
         } catch (error) {
-            throw new DatabaseException('Failed to retrieve transactions due to a database issue.');
+            throw new DatabaseException("Ocorreu um erro inesperado ao processar a requisição de transações.");
         }
     }
-
 
     /**
      * Calcula e retorna um resumo financeiro para um usuário (saldo, total de rendas, total de despesas).
@@ -144,7 +177,7 @@ export class TransactionRepository implements ITransactionRepository {
     
     async getSummary(userId: string): Promise<ITransactionAggregationResult> {
         try {
-            const objectIdUserId = new mongoose.Types.ObjectId(userId);
+            const objectIdUserId = new Types.ObjectId(userId);
 
             // Pipeline de agregação para calcular o resumo.
             const summary = await TransactionModel.aggregate([
@@ -182,7 +215,11 @@ export class TransactionRepository implements ITransactionRepository {
 
             return summary[0]; // O resultado da agregação é um array, pegamos o primeiro (e único) elemento
         } catch (error) {
-            throw new DatabaseException('Failed to calculate summary due to a database issue.');
+            throw new DatabaseException(
+                'Failed to calculate summary due to a database issue.',
+                error as Error
+            );
         }
     }
+    
 }

@@ -1,5 +1,6 @@
 import { CreateUserDTO } from "../dtos/create-user.dto";
 import { LoginDTO } from "../dtos/user-login.dto";
+import { UserResponseDTO } from "../dtos/user-response.dto";
 
 export interface IUserService {
     /**
@@ -7,7 +8,7 @@ export interface IUserService {
      * @param userData - Dados do usuário a serem cadastrados.
      */
     
-    registerUser(userData: CreateUserDTO): Promise<void>;
+    registerUser(userData: CreateUserDTO): Promise<UserResponseDTO>;
 
     /**
      * Autentica um usuário e retorna um token de acesso.

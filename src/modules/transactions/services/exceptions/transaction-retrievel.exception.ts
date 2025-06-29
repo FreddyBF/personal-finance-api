@@ -13,20 +13,15 @@ export class TransactionRetrievalException extends Error {
      * Útil para logging e depuração.
      */
     public readonly originalError?: Error;
-
     constructor(message: string, originalError?: Error) {
         // Chama o construtor da classe base (Error)
         super(message);
-
         // Define o nome da exceção (útil para depuração e identificação)
         this.name = 'TransactionRetrievalError';
-
         // Captura o stack trace para melhor depuração
         // Isso é importante para ambientes como Node.js
-        if (Error.captureStackTrace) {
+        if (Error.captureStackTrace) 
             Error.captureStackTrace(this, TransactionRetrievalException);
-        }
-
         // Armazena o erro original que causou esta exceção
         this.originalError = originalError;
     }
